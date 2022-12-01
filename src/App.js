@@ -30,20 +30,15 @@ const App = () => {
     console.log(filteredResults);
   };
 
-
   useEffect(() => {
-    console.log('Starting effect')
-    axios
-      .get('http://localhost:3001/persons')
-      .then(response => {
-        console.log('promise fulfilled')
-        setPersons(response.data)
-      })
-  }, [])
+    console.log("Starting effect");
+    axios.get("http://localhost:3001/persons").then((response) => {
+      console.log("promise fulfilled");
+      setPersons(response.data);
+    });
+  }, []);
 
   const [persons, setPersons] = useState([]);
-
-  const [same, setSame] = useState(false);
 
   const [newName, setNewName] = useState("");
 
@@ -101,8 +96,15 @@ const App = () => {
       </ul>
       <ul>
         <h2>Filtered Results</h2>
-        {filteredResults.map((filteredPerson) => (
-          <PersonDisplay name={filteredPerson.name} number={filteredPerson.number} />
+        {persons
+          .filter((person) =>
+            person.name.toLowerCase().includes(newSearch.toLowerCase())
+          )
+          .map((filteredPerson) => (
+            <PersonDisplay
+              name={filteredPerson.name}
+              number={filteredPerson.number}
+            />
           ))}
       </ul>
     </div>
