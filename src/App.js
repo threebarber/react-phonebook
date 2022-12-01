@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-
+import axios from "axios";
 
 /* phonebook exercise */
 
@@ -30,12 +30,18 @@ const App = () => {
     console.log(filteredResults);
   };
 
-  const [persons, setPersons] = useState([
-    { name: "Arto Hellas", number: "040-123456", id: 1 },
-    { name: "Ada Lovelace", number: "39-44-5323523", id: 2 },
-    { name: "Dan Abramov", number: "12-43-234345", id: 3 },
-    { name: "Mary Poppendieck", number: "39-23-6423122", id: 4 },
-  ]);
+
+  useEffect(() => {
+    console.log('Starting effect')
+    axios
+      .get('http://localhost:3001/persons')
+      .then(response => {
+        console.log('promise fulfilled')
+        setPersons(response.data)
+      })
+  }, [])
+
+  const [persons, setPersons] = useState([]);
 
   const [same, setSame] = useState(false);
 
@@ -77,7 +83,7 @@ const App = () => {
         <div>
           name: <input onChange={handleNameChange} type="text" id="nameInput" />
           <br />
-          number:{" "}
+          number:
           <input onChange={handleNumberChange} type="text" id="numberInput" />
         </div>
         <div>
