@@ -7,6 +7,15 @@ const PersonDisplay = (props) => {
   return <li>{props.name + " " + props.number}</li>;
 };
 
+const UserInput = (props) => {
+  return (
+    <div>
+      <label>{props.label}</label>
+      <input onChange={props.onChange} type="text" />
+    </div>
+  );
+};
+
 const App = () => {
   const handleNameChange = (event) => {
     console.log(event.target.value);
@@ -21,13 +30,6 @@ const App = () => {
   const handleSearchChange = (event) => {
     console.log(event.target.value);
     setNewSearch(event.target.value);
-
-    setFilteredResults(
-      persons.filter((person) =>
-        person.name.toLowerCase().includes(newSearch.toLowerCase())
-      )
-    );
-    console.log(filteredResults);
   };
 
   useEffect(() => {
@@ -43,8 +45,6 @@ const App = () => {
   const [newName, setNewName] = useState("");
 
   const [newNumber, setNewNumber] = useState("");
-
-  const [filteredResults, setFilteredResults] = useState([]);
 
   const [newSearch, setNewSearch] = useState("");
 
@@ -71,15 +71,13 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
-      Search:
-      <input onChange={handleSearchChange} type="text" id="searchInput" />
+      <UserInput label="Search" onChange={handleSearchChange} />
       <br />
       <form>
         <div>
-          name: <input onChange={handleNameChange} type="text" id="nameInput" />
+          <UserInput label="Contact Name" onChange={handleNameChange} />
           <br />
-          number:
-          <input onChange={handleNumberChange} type="text" id="numberInput" />
+          <UserInput label="Contact Number" onChange={handleNumberChange} />
         </div>
         <div>
           <button onClick={addPerson} type="submit">
