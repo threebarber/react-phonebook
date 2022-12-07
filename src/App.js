@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import comms from "./comms"
 
 /* phonebook exercise */
 
 const PersonDisplay = (props) => {
-  return <li>{props.name + " " + props.number}</li>;
+  return <div><li>{props.name + " " + props.number}</li><button onClick={props.onClick}>Delete</button></div>;
 };
 
 const UserInput = (props) => {
@@ -34,9 +35,11 @@ const App = () => {
 
   useEffect(() => {
     console.log("Starting effect");
-    axios.get("http://localhost:3001/persons").then((response) => {
+    comms
+    .getAll()
+    .then((initialPersons) => {
       console.log("promise fulfilled");
-      setPersons(response.data);
+      setPersons(initialPersons);
     });
   }, []);
 
@@ -48,6 +51,7 @@ const App = () => {
 
   const [newSearch, setNewSearch] = useState("");
 
+
   const addPerson = (event) => {
     event.preventDefault();
 
@@ -57,16 +61,36 @@ const App = () => {
     };
 
     if (!persons.some((element) => element.name === newName)) {
-      setPersons(persons.concat(personObject));
       console.log(
         "Added new contact: " + personObject.name + "|" + personObject.number
       );
+
+      comms
+      .create(personObject)
+      .then(returnedPerson => {
+        setPersons(persons.concat(returnedPerson));
+        setNewName('');
+        setNewNumber('');
+      })
+
     } else {
       alert("Contact already exists");
     }
 
     setNewName("");
   };
+
+  const handleDel = (event, id) => {
+    
+    event.preventDefault();
+
+    comms.deletePerson(id)
+    const newArr = persons.filter(person => person.id !== id);
+    setPersons(newArr);
+
+  }
+
+
 
   return (
     <div>
@@ -89,7 +113,7 @@ const App = () => {
       <h2>Numbers</h2>
       <ul>
         {persons.map((person) => (
-          <PersonDisplay name={person.name} number={person.number} />
+          <PersonDisplay name={person.name} number={person.number} onClick={event => handleDel(event, person.id)} />
         ))}
       </ul>
       <ul>
@@ -102,6 +126,7 @@ const App = () => {
             <PersonDisplay
               name={filteredPerson.name}
               number={filteredPerson.number}
+              onClick={event => handleDel(event, filteredPerson.id)}
             />
           ))}
       </ul>
