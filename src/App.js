@@ -1,11 +1,16 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import comms from "./comms"
+import comms from "./comms";
 
 /* phonebook exercise */
 
 const PersonDisplay = (props) => {
-  return <div><li>{props.name + " " + props.number}</li><button onClick={props.onClick}>Delete</button></div>;
+  return (
+    <div>
+      <li>{props.name + " " + props.number}</li>
+      <button onClick={props.onClick}>Delete</button>
+    </div>
+  );
 };
 
 const UserInput = (props) => {
@@ -20,7 +25,7 @@ const UserInput = (props) => {
 const App = () => {
   const handleNameChange = (event) => {
     console.log(event.target.value);
-    setNewName(event.target.value);
+    setNewName(event.target.value.toLowerCase());
   };
 
   const handleNumberChange = (event) => {
@@ -35,9 +40,7 @@ const App = () => {
 
   useEffect(() => {
     console.log("Starting effect");
-    comms
-    .getAll()
-    .then((initialPersons) => {
+    comms.getAll().then((initialPersons) => {
       console.log("promise fulfilled");
       setPersons(initialPersons);
     });
@@ -51,46 +54,66 @@ const App = () => {
 
   const [newSearch, setNewSearch] = useState("");
 
-
-  const addPerson = (event) => {
+  const handleAddClick = (event) => {
     event.preventDefault();
 
-    const personObject = {
+    const newPersonObj = {
       name: newName,
       number: newNumber,
     };
 
-    if (!persons.some((element) => element.name === newName)) {
-      console.log(
-        "Added new contact: " + personObject.name + "|" + personObject.number
+    if (
+      !persons.some(
+        (element) => element.name.toLowerCase() === newName.toLowerCase()
+      )
+    ) {
+      addPerson(newPersonObj);
+    } else if (
+      persons.some(
+        (element) => element.name.toLowerCase() === newName.toLowerCase()
+      )
+    ) {
+      const existingPerson = persons.find(
+        (person) => person.name.toLowerCase() === newName.toLowerCase()
       );
-
-      comms
-      .create(personObject)
-      .then(returnedPerson => {
-        setPersons(persons.concat(returnedPerson));
-        setNewName('');
-        setNewNumber('');
-      })
-
+      console.log(
+        "Found existing person - name: " +
+          existingPerson.name +
+          " id: " +
+          existingPerson.id
+      );
+      updatePerson(existingPerson.id, newPersonObj);
     } else {
-      alert("Contact already exists");
+      console.log("something else?");
     }
+  };
 
-    setNewName("");
+  const addPerson = (personObject) => {
+    console.log("adding new person");
+    comms.create(personObject).then((returnedPerson) => {
+      setPersons(persons.concat(returnedPerson));
+      setNewName("");
+      setNewNumber("");
+    });
+  };
+
+  const updatePerson = (id, newPerson) => {
+    console.log("updating person");
+
+    comms.update(id, newPerson).then((response) => {
+      setPersons(
+        persons.map((person) => (person.id !== id ? person : response))
+      );
+    });
   };
 
   const handleDel = (event, id) => {
-    
     event.preventDefault();
 
-    comms.deletePerson(id)
-    const newArr = persons.filter(person => person.id !== id);
+    comms.deletePerson(id);
+    const newArr = persons.filter((person) => person.id !== id);
     setPersons(newArr);
-
-  }
-
-
+  };
 
   return (
     <div>
@@ -104,7 +127,7 @@ const App = () => {
           <UserInput label="Contact Number" onChange={handleNumberChange} />
         </div>
         <div>
-          <button onClick={addPerson} type="submit">
+          <button onClick={handleAddClick} type="submit">
             add
           </button>
         </div>
@@ -113,7 +136,11 @@ const App = () => {
       <h2>Numbers</h2>
       <ul>
         {persons.map((person) => (
-          <PersonDisplay name={person.name} number={person.number} onClick={event => handleDel(event, person.id)} />
+          <PersonDisplay
+            name={person.name}
+            number={person.number}
+            onClick={(event) => handleDel(event, person.id)}
+          />
         ))}
       </ul>
       <ul>
@@ -126,7 +153,7 @@ const App = () => {
             <PersonDisplay
               name={filteredPerson.name}
               number={filteredPerson.number}
-              onClick={event => handleDel(event, filteredPerson.id)}
+              onClick={(event) => handleDel(event, filteredPerson.id)}
             />
           ))}
       </ul>
