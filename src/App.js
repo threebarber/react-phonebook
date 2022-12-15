@@ -92,8 +92,8 @@ const App = () => {
     console.log("adding new person");
     comms.create(personObject).then((returnedPerson) => {
       setPersons(persons.concat(returnedPerson));
-      setNewName("");
-      setNewNumber("");
+      /*setNewName("");
+      setNewNumber("");*/
     });
   };
 
@@ -101,9 +101,7 @@ const App = () => {
     console.log("updating person");
 
     comms.update(id, newPerson).then((response) => {
-      setPersons(
-        persons.map((person) => (person.id !== id ? person : response))
-      );
+      setPersons(response);
     });
   };
 
