@@ -90,18 +90,22 @@ const App = () => {
 
   const addPerson = (personObject) => {
     console.log("adding new person");
-    comms.create(personObject).then((returnedPerson) => {
+    comms.create(personObject)
+    .then((returnedPerson) => {
       setPersons(persons.concat(returnedPerson));
       /*setNewName("");
       setNewNumber("");*/
-    });
+    }).catch(error => {
+      console.log(error.response.data.error)
+    })
   };
 
   const updatePerson = (id, newPerson) => {
     console.log("updating person");
 
-    comms.update(id, newPerson).then((response) => {
-      setPersons(response);
+    comms.update(id, newPerson)
+    .then((response) => {
+      setPersons(persons.map(person => person.id === id ? newPerson : person));
     });
   };
 
